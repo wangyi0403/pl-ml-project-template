@@ -1,6 +1,8 @@
 ---
 name: pl-ml-project-template
-description: Create or adapt a PyTorch Lightning project scaffold for conventional machine learning and deep learning workloads such as classification, regression, and time series forecasting. Use when starting a new PL-based research codebase or refactoring an existing non-LLM training project into a repeatable structure. Not intended for LLM pretraining, PEFT, agent, RAG, or serving stacks.
+description: Scaffold a PyTorch Lightning project for classification, regression, or timeseries research. Triggers on "新建项目", "initialize project", "scaffold", "create PL project". Not for LLM/PEFT/RAG/agent stacks.
+argument-hint: [task-type: classification|regression|timeseries] [--force]
+allowed-tools: Bash(*), Write
 ---
 
 # PL ML Project Template
@@ -101,3 +103,27 @@ Naming convention:
 - `standard_dataset.py` -> `StandardDataset`
 
 Read [references/template-design.md](references/template-design.md) when you need the rationale or want to extend the scaffold.
+
+## Post-Scaffold Verification
+
+After scaffolding, run a quick smoke test:
+
+```bash
+cd /path/to/project
+python -c "from model import MInterface; from data import DInterface; print('OK')"
+```
+
+If using a GPU environment, also verify training wiring:
+
+```bash
+python main.py --max_epochs 1 --devices 1
+```
+
+## Common Pitfalls
+
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| `ModuleNotFoundError` on import | File named `my_net.py` but class is `MyNetwork` | Class must be `MyNet` — strict `snake_case` → `CamelCase` conversion |
+| Model not found | `--model_name` doesn't match file name | `--model_name foo_bar` expects `model/foo_bar.py` with `class FooBar` |
+| Config not applied | CLI args override YAML | YAML only fills args that are `None`; explicit CLI wins |
+| `train=True/False` ignored | Dataset `__init__` doesn't accept `train` param | Add `train` parameter to your custom dataset |
